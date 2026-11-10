@@ -1,0 +1,368 @@
+<Window x:Class="F1GridEditorApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:F1GridEditorApp"
+        mc:Ignorable="d"
+        Title="F1 2020 Grid &amp; Driver Customizer" 
+        Height="630" Width="940"
+        MinHeight="580" MinWidth="850"
+        WindowStartupLocation="CenterScreen"
+        Background="#121316" Foreground="#E0E3EB"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <!-- Dark compact control styles -->
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#1A1C22"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#2F3340"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="#1A1C22"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#2F3340"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="#8F96A6"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="0,0,0,2"/>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#22252E"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#353A47"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <!-- 0. Header -->
+            <RowDefinition Height="Auto"/>
+            <!-- 1. Folder Selection Bar -->
+            <RowDefinition Height="Auto"/>
+            <!-- 2. Presets Toolbar -->
+            <RowDefinition Height="Auto"/>
+            <!-- 3. Main Editor Area -->
+            <RowDefinition Height="*"/>
+            <!-- 4. Collapsible Log Console -->
+            <RowDefinition x:Name="rowLogs" Height="85"/>
+            <!-- 5. Action Bar -->
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 0. Header -->
+        <Border Grid.Row="0" Background="#16181E" BorderBrush="#E10600" BorderThickness="0,0,0,2" Padding="14,8">
+            <DockPanel LastChildFill="True">
+                <!-- Right: Language Switcher -->
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
+                    <TextBlock Text="🌐 " FontSize="12" VerticalAlignment="Center" Margin="0,0,2,0"/>
+                    <Button x:Name="btnLangEn" Content="EN" Click="BtnLangEn_Click" Padding="6,2" Margin="0,0,2,0" FontWeight="Bold"/>
+                    <Button x:Name="btnLangEs" Content="ES" Click="BtnLangEs_Click" Padding="6,2" Margin="0,0,2,0"/>
+                    <Button x:Name="btnLangRu" Content="RU" Click="BtnLangRu_Click" Padding="6,2" Margin="0,0,10,0"/>
+
+                    <Border Background="#251012" BorderBrush="#E10600" BorderThickness="1" CornerRadius="3" Padding="6,2">
+                        <TextBlock x:Name="txtBadgeMod" Text="{Binding Loc.BadgeMod, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="#FF6666" FontSize="10" FontWeight="Bold"/>
+                    </Border>
+                </StackPanel>
+
+                <!-- Left: Title -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="🏎️ F1 2020" Foreground="#E10600" FontSize="16" FontWeight="Black" Margin="0,0,6,0"/>
+                    <TextBlock Text="CUSTOMIZER" Foreground="#FFFFFF" FontSize="16" FontWeight="Bold" Margin="0,0,12,0"/>
+                    <TextBlock x:Name="txtSubtitle" Text="{Binding Loc.Subtitle, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="#7A8090" FontSize="11" VerticalAlignment="Center"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- 1. Folder Bar -->
+        <Border Grid.Row="1" Background="#14151A" BorderBrush="#20222A" BorderThickness="0,0,0,1" Padding="14,6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Content="{Binding Loc.FolderLabel, RelativeSource={RelativeSource AncestorType=Window}}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <TextBox x:Name="txtGamePath" Grid.Column="1" TextChanged="TxtGamePath_TextChanged" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <Button x:Name="btnBrowse" Grid.Column="2" Content="{Binding Loc.BrowseBtn, RelativeSource={RelativeSource AncestorType=Window}}" Click="BtnBrowse_Click" Margin="0,0,4,0"/>
+                <Button x:Name="btnSelectDownloads" Grid.Column="3" Content="{Binding Loc.DownloadsBtn, RelativeSource={RelativeSource AncestorType=Window}}" Click="BtnSelectDownloads_Click" ToolTip="C:\Users\ciroj\Downloads\F1 2020" Margin="0,0,4,0"/>
+                <Button x:Name="btnSelectGames" Grid.Column="4" Content="{Binding Loc.GamesBtn, RelativeSource={RelativeSource AncestorType=Window}}" Click="BtnSelectGames_Click" ToolTip="C:\Games\F1 2020"/>
+            </Grid>
+        </Border>
+
+        <!-- 2. Presets & Status Bar -->
+        <Border Grid.Row="2" Background="#121317" BorderBrush="#1C1E24" BorderThickness="0,0,0,1" Padding="14,4">
+            <DockPanel LastChildFill="True">
+                <!-- Presets on Left -->
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Loc.PresetsLabel, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="#6A7080" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <Button x:Name="btnLoad2026" Content="{Binding Loc.Load2026Btn, RelativeSource={RelativeSource AncestorType=Window}}" Background="#1A2E22" BorderBrush="#27AE60" Foreground="#2ECC71" Click="BtnLoad2026_Click" Margin="0,0,6,0"/>
+                    <Button x:Name="btnLoadStock" Content="{Binding Loc.LoadStockBtn, RelativeSource={RelativeSource AncestorType=Window}}" Click="BtnLoadStock_Click" Margin="0,0,6,0"/>
+                    <Button x:Name="btnExportJson" Content="{Binding Loc.ExportBtn, RelativeSource={RelativeSource AncestorType=Window}}" Click="BtnExportJson_Click" Margin="0,0,4,0"/>
+                    <Button x:Name="btnImportJson" Content="{Binding Loc.ImportBtn, RelativeSource={RelativeSource AncestorType=Window}}" Click="BtnImportJson_Click" Margin="0,0,10,0"/>
+                </StackPanel>
+
+                <!-- Compact Status Indicator on Right -->
+                <Border x:Name="borderStatus" Background="#181E24" BorderBrush="#2A3542" BorderThickness="1" CornerRadius="3" Padding="8,2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock x:Name="txtStatus" Text="{Binding Loc.StatusVerifying, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="#88BBEE" FontSize="11" FontWeight="SemiBold"/>
+                </Border>
+            </DockPanel>
+        </Border>
+
+        <!-- 3. Main Content: Compact 2-Column Grid -->
+        <Grid Grid.Row="3" Margin="14,8">
+            <Grid.ColumnDefinitions>
+                <!-- Teams Sidebar -->
+                <ColumnDefinition Width="210"/>
+                <!-- Divider -->
+                <ColumnDefinition Width="10"/>
+                <!-- Team & Drivers Editor -->
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Teams List -->
+            <Border Grid.Column="0" Background="#16181F" BorderBrush="#222630" BorderThickness="1" CornerRadius="4">
+                <DockPanel LastChildFill="True">
+                    <Border DockPanel.Dock="Top" Background="#1B1E26" BorderBrush="#222630" BorderThickness="0,0,0,1" Padding="8,5">
+                        <TextBlock Text="{Binding Loc.TeamsHeader, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="#8A90A0" FontSize="10" FontWeight="Bold"/>
+                    </Border>
+
+                    <ListBox x:Name="lstTeams" Background="Transparent" BorderThickness="0" SelectionChanged="LstTeams_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="1,2" Padding="6,4" Background="#1C1F28" BorderBrush="#262A36" BorderThickness="1" CornerRadius="3">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="8"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Team Color Strip -->
+                                        <Border Grid.Column="0" Background="{Binding ColorBrush}" CornerRadius="1" Margin="0,1,6,1"/>
+
+                                        <StackPanel Grid.Column="1" Orientation="Vertical">
+                                            <TextBlock Text="{Binding TeamName}" Foreground="#FFFFFF" FontWeight="Bold" FontSize="12"/>
+                                            <TextBlock Text="{Binding BaseSlot}" Foreground="#666E7C" FontSize="10"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </Border>
+
+            <!-- Editor Pane for Selected Team -->
+            <Border Grid.Column="2" Background="#16181F" BorderBrush="#222630" BorderThickness="1" CornerRadius="4" Padding="10">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="pnlEditor" Orientation="Vertical">
+
+                        <!-- Team Details Box -->
+                        <Border Background="#1A1C24" BorderBrush="#262B38" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,8">
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <Border x:Name="borderTeamColor" Width="8" Height="14" Background="#FFFFFF" CornerRadius="1" Margin="0,0,6,0"/>
+                                    <TextBlock Text="{Binding Loc.TeamConfigHeader, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="#FFFFFF" FontWeight="Bold" FontSize="12"/>
+                                </StackPanel>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Team Name -->
+                                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,6">
+                                        <Label Content="{Binding Loc.TeamNameLabel, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        <TextBox x:Name="txtTeamName"/>
+                                    </StackPanel>
+
+                                    <!-- Team Short Name -->
+                                    <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,6">
+                                        <Label Content="{Binding Loc.TeamShortLabel, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        <TextBox x:Name="txtTeamShort"/>
+                                    </StackPanel>
+
+                                    <!-- Team Official Title -->
+                                    <StackPanel Grid.Row="1" Grid.Column="0">
+                                        <Label Content="{Binding Loc.TeamTitleLabel, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        <TextBox x:Name="txtTeamTitle"/>
+                                    </StackPanel>
+
+                                    <!-- Team Color -->
+                                    <StackPanel Grid.Row="1" Grid.Column="2">
+                                        <Label Content="{Binding Loc.TeamColorLabel, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="26"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border x:Name="rectColorPreview" Grid.Column="0" Background="#FFFFFF" BorderBrush="#353A48" BorderThickness="1" CornerRadius="2" Margin="0,0,6,0"/>
+                                            <TextBox x:Name="txtTeamColor" Grid.Column="1" TextChanged="TxtTeamColor_TextChanged" Margin="0,0,6,0"/>
+                                            <Button x:Name="btnPickColor" Grid.Column="2" Content="{Binding Loc.PickColorBtn, RelativeSource={RelativeSource AncestorType=Window}}" Click="BtnPickColor_Click"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Driver 1 Box -->
+                        <Border Background="#1A1C24" BorderBrush="#262B38" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,8">
+                            <StackPanel Orientation="Vertical">
+                                <DockPanel LastChildFill="False" Margin="0,0,0,6">
+                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                        <TextBlock Text="{Binding Loc.Driver1Header, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="#00D2BE" FontWeight="Bold" FontSize="11"/>
+                                        <TextBlock x:Name="lblDriver1Slot" Text="Slot 1" Foreground="#9DA3B0" FontWeight="SemiBold" FontSize="11"/>
+                                    </StackPanel>
+                                    <TextBlock x:Name="lblDriver1Orig" DockPanel.Dock="Right" Text="Original: -" Foreground="#646C7A" FontSize="10"/>
+                                </DockPanel>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="65"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="1.4*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- First Name -->
+                                    <StackPanel Grid.Column="0">
+                                        <Label Content="{Binding Loc.FirstNameLabel, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        <TextBox x:Name="txtD1First" TextChanged="TxtD1Names_TextChanged"/>
+                                    </StackPanel>
+
+                                    <!-- Last Name -->
+                                    <StackPanel Grid.Column="2">
+                                        <Label Content="{Binding Loc.LastNameLabel, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        <TextBox x:Name="txtD1Last" TextChanged="TxtD1Names_TextChanged"/>
+                                    </StackPanel>
+
+                                    <!-- Initials -->
+                                    <StackPanel Grid.Column="4">
+                                        <Label Content="{Binding Loc.InitialsLabel, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        <TextBox x:Name="txtD1Init" MaxLength="3"/>
+                                    </StackPanel>
+
+                                    <!-- Nationality -->
+                                    <StackPanel Grid.Column="6">
+                                        <Label Content="{Binding Loc.NationalityLabel, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        <ComboBox x:Name="cmbNatDriver1" DisplayMemberPath="DisplayText"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Driver 2 Box -->
+                        <Border Background="#1A1C24" BorderBrush="#262B38" BorderThickness="1" CornerRadius="4" Padding="10">
+                            <StackPanel Orientation="Vertical">
+                                <DockPanel LastChildFill="False" Margin="0,0,0,6">
+                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                        <TextBlock Text="{Binding Loc.Driver2Header, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="#00D2BE" FontWeight="Bold" FontSize="11"/>
+                                        <TextBlock x:Name="lblDriver2Slot" Text="Slot 2" Foreground="#9DA3B0" FontWeight="SemiBold" FontSize="11"/>
+                                    </StackPanel>
+                                    <TextBlock x:Name="lblDriver2Orig" DockPanel.Dock="Right" Text="Original: -" Foreground="#646C7A" FontSize="10"/>
+                                </DockPanel>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="65"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="1.4*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- First Name -->
+                                    <StackPanel Grid.Column="0">
+                                        <Label Content="{Binding Loc.FirstNameLabel, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        <TextBox x:Name="txtD2First" TextChanged="TxtD2Names_TextChanged"/>
+                                    </StackPanel>
+
+                                    <!-- Last Name -->
+                                    <StackPanel Grid.Column="2">
+                                        <Label Content="{Binding Loc.LastNameLabel, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        <TextBox x:Name="txtD2Last" TextChanged="TxtD2Names_TextChanged"/>
+                                    </StackPanel>
+
+                                    <!-- Initials -->
+                                    <StackPanel Grid.Column="4">
+                                        <Label Content="{Binding Loc.InitialsLabel, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        <TextBox x:Name="txtD2Init" MaxLength="3"/>
+                                    </StackPanel>
+
+                                    <!-- Nationality -->
+                                    <StackPanel Grid.Column="6">
+                                        <Label Content="{Binding Loc.NationalityLabel, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        <ComboBox x:Name="cmbNatDriver2" DisplayMemberPath="DisplayText"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- 4. Collapsible Log Console -->
+        <Border Grid.Row="4" Background="#0A0B0E" BorderBrush="#1C1E26" BorderThickness="0,1,0,1" Margin="14,0,14,6">
+            <DockPanel LastChildFill="True">
+                <Border DockPanel.Dock="Top" Background="#111318" Padding="8,3">
+                    <DockPanel LastChildFill="False">
+                        <TextBlock Text="{Binding Loc.ConsoleHeader, RelativeSource={RelativeSource AncestorType=Window}}" Foreground="#606674" FontSize="9" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <Button DockPanel.Dock="Right" Content="{Binding Loc.ClearBtn, RelativeSource={RelativeSource AncestorType=Window}}" Padding="5,1" FontSize="9" Click="BtnClearLog_Click" Margin="4,0,0,0"/>
+                        <Button x:Name="btnToggleLogs" DockPanel.Dock="Right" Content="▲ / ▼" Padding="5,1" FontSize="9" Click="BtnToggleLogs_Click"/>
+                    </DockPanel>
+                </Border>
+                <TextBox x:Name="txtLog" Background="Transparent" Foreground="#8F96A6" FontFamily="Consolas" FontSize="10"
+                         IsReadOnly="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                         TextWrapping="Wrap" BorderThickness="0" Padding="6,2"/>
+            </DockPanel>
+        </Border>
+
+        <!-- 5. Bottom Action Bar -->
+        <Border Grid.Row="5" Background="#14161C" BorderBrush="#20242E" BorderThickness="0,1,0,0" Padding="14,8">
+            <DockPanel LastChildFill="False">
+                <Button x:Name="btnReAudit" DockPanel.Dock="Left" Content="{Binding Loc.ReAuditBtn, RelativeSource={RelativeSource AncestorType=Window}}" Click="BtnReAudit_Click" Margin="0,0,8,0"/>
+                <Button x:Name="btnRollback" DockPanel.Dock="Left" Content="{Binding Loc.RollbackBtn, RelativeSource={RelativeSource AncestorType=Window}}" Background="#2D1719" BorderBrush="#882828" Foreground="#FF9999" Click="BtnRollback_Click"/>
+
+                <Button x:Name="btnApply" DockPanel.Dock="Right" Content="{Binding Loc.ApplyBtn, RelativeSource={RelativeSource AncestorType=Window}}" 
+                        Background="#E10600" BorderBrush="#FF3333" Foreground="#FFFFFF"
+                        FontSize="12" FontWeight="Bold" Padding="18,6" Click="BtnApply_Click"/>
+            </DockPanel>
+        </Border>
+
+    </Grid>
+</Window>
